@@ -88,7 +88,7 @@ Redis message queue
 
 Frontend receives job updates in real-time
 
-#🌐 7. Frontend (React)
+# 🌐 7. Frontend (React)
 
 Clean UI
 
