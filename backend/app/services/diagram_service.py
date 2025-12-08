@@ -34,15 +34,13 @@ class DiagramService:
         dot.render(output_path, format="png", cleanup=True)
         return output_path + ".png"
 
-    # ============================================================
-    # 2. DIAGRAM FROM TEXT (LLM)
-    # ============================================================
+
     def create_diagram_from_text(self, description, output_path=None):
         prompt = f"""
 Convert this text into a diagram JSON:
-\"{description}\"
+"{description}"
 
-Return ONLY JSON:
+Return ONLY JSON like:
 {{
   "nodes": [
     {{"id": "1", "label": "Start"}}
@@ -54,9 +52,6 @@ Return ONLY JSON:
 """
 
         try:
-            if not self.llm.client:
-                raise Exception("LLM not available")
-
             resp = self.llm.client.chat.completions.create(
                 model=self.llm.model,
                 messages=[{"role": "user", "content": prompt}],
@@ -78,16 +73,12 @@ Return ONLY JSON:
             )
 
         except Exception:
-            # fallback simple diagram
+            # fallback simple flowchart
             return self.create_flowchart(
                 [{"id": "1", "label": description}],
                 [],
                 output_path
-            )
 
-    # ============================================================
-    # 3. MINDMAP
-    # ============================================================
     def create_mindmap(self, central_topic, branches, output_path=None):
         if not output_path:
             output_path = tempfile.mktemp()
@@ -107,13 +98,10 @@ Return ONLY JSON:
         dot.render(output_path, format="png", cleanup=True)
         return output_path + ".png"
 
-    # ============================================================
-    # 4. MINDMAP FROM TEXT (LLM)
-    # ============================================================
     def create_mindmap_from_text(self, description, output_path=None):
         prompt = f"""
 Convert this text into a mindmap JSON:
-\"{description}\"
+"{description}"
 
 Return ONLY JSON:
 {{
@@ -123,9 +111,6 @@ Return ONLY JSON:
 """
 
         try:
-            if not self.llm.client:
-                raise Exception("LLM not available")
-
             resp = self.llm.client.chat.completions.create(
                 model=self.llm.model,
                 messages=[{"role": "user", "content": prompt}],
@@ -134,6 +119,7 @@ Return ONLY JSON:
 
             content = resp.choices[0].message.content.strip()
 
+            # Clean code fences
             if content.startswith("```"):
                 content = content.replace("```json", "").replace("```", "").strip()
 
@@ -146,11 +132,12 @@ Return ONLY JSON:
             )
 
         except Exception:
-            return self.create_mindmap(description, [], output_path)
+            return self.create_mindmap(
+                description,
+                [],
+                output_path
+            )
 
-    # ============================================================
-    # 5. ORGANIZATION CHART
-    # ============================================================
     def create_organization_chart(self, members, output_path=None):
         if not output_path:
             output_path = tempfile.mktemp()
@@ -163,6 +150,7 @@ Return ONLY JSON:
             dot.node(
                 member.get("id", "member"),
                 member.get("name", "Member"),
+                shape=member.get("shape", "box"),
                 fillcolor=member.get("color", "lightgrey")
             )
 
@@ -173,13 +161,10 @@ Return ONLY JSON:
         dot.render(output_path, format="png", cleanup=True)
         return output_path + ".png"
 
-    # ============================================================
-    # 6. ORG CHART FROM TEXT (LLM)
-    # ============================================================
     def create_organization_chart_from_text(self, description, output_path=None):
         prompt = f"""
 Convert this text into an organization chart JSON:
-\"{description}\"
+"{description}"
 
 Return ONLY JSON:
 {{
@@ -191,15 +176,11 @@ Return ONLY JSON:
 """
 
         try:
-            if not self.llm.client:
-                raise Exception("LLM not available")
-
             resp = self.llm.client.chat.completions.create(
                 model=self.llm.model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.1
             )
-
             content = resp.choices[0].message.content.strip()
 
             if content.startswith("```"):
@@ -211,7 +192,6 @@ Return ONLY JSON:
                 data.get("members", []),
                 output_path
             )
-
         except Exception:
             return self.create_organization_chart(
                 [{"id": "1", "name": description, "reports_to": None}],
