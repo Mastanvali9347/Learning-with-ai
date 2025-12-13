@@ -34,11 +34,10 @@ class DiagramService:
         dot.render(output_path, format="png", cleanup=True)
         return output_path + ".png"
 
-
     def create_diagram_from_text(self, description, output_path=None):
         prompt = f"""
 Convert this text into a diagram JSON:
-"{description}"
+\"{description}\"
 
 Return ONLY JSON like:
 {{
@@ -78,6 +77,7 @@ Return ONLY JSON like:
                 [{"id": "1", "label": description}],
                 [],
                 output_path
+            )   # ← FIXED MISSING PARENTHESIS
 
     def create_mindmap(self, central_topic, branches, output_path=None):
         if not output_path:
@@ -101,7 +101,7 @@ Return ONLY JSON like:
     def create_mindmap_from_text(self, description, output_path=None):
         prompt = f"""
 Convert this text into a mindmap JSON:
-"{description}"
+\"{description}\"
 
 Return ONLY JSON:
 {{
@@ -164,7 +164,7 @@ Return ONLY JSON:
     def create_organization_chart_from_text(self, description, output_path=None):
         prompt = f"""
 Convert this text into an organization chart JSON:
-"{description}"
+\"{description}\"
 
 Return ONLY JSON:
 {{
