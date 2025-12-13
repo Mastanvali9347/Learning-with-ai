@@ -10,9 +10,7 @@ class ImageService:
         api_key = os.getenv("OPENAI_API_KEY")
         self.client = OpenAI(api_key=api_key) if api_key else None
 
-    # -------------------------------------------------------
     # OPENAI IMAGE GENERATION
-    # -------------------------------------------------------
     def generate_image(self, prompt: str, output_path=None, size="1024x1024"):
         if not self.client:
             return self.create_placeholder_image(prompt, output_path)
@@ -40,9 +38,7 @@ class ImageService:
         except Exception:
             return self.create_placeholder_image(prompt, output_path)
 
-    # -------------------------------------------------------
     # PLACEHOLDER IMAGE
-    # -------------------------------------------------------
     def create_placeholder_image(self, text, output_path=None):
         if not output_path:
             output_path = tempfile.mktemp(suffix=".png")
@@ -78,9 +74,38 @@ class ImageService:
         img.save(output_path)
         return output_path
 
-    # -------------------------------------------------------
     def resize_image(self, input_path, output_path, size=(1920, 1080)):
         img = Image.open(input_path)
         img = img.resize(size, Image.Resampling.LANCZOS)
         img.save(output_path)
         return output_path
+
+    def crop_image(self, input_path, output_path, crop_box):
+        img = Image.open(input_path)
+        img = img.crop(crop_box)
+        img.save(output_path)
+        return output_path
+    def convert_image_format(self, input_path, output_path, format="JPEG"):
+        img = Image.open(input_path)
+        img.save(output_path, format=format)
+        return output_path
+    def compress_image(self, input_path, output_path, quality=85):
+        img = Image.open(input_path)
+        img.save(output_path, quality=quality, optimize=True)
+        return output_path
+
+        try:
+            content = self.llm.generate_text(prompt).strip()
+            data = json.loads(content)
+            return self.create_flowchart(
+                data.get("nodes", []),
+                data.get("edges", []),
+                output_path
+            )
+        except Exception:
+            # fallback simple flowchart
+            return self.create_flowchart(
+                [{"id": "1", "label": description}],
+                [],
+                output_path
+            )

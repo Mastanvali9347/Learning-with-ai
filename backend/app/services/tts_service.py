@@ -20,9 +20,7 @@ class TTSService:
         api_key = os.getenv("OPENAI_API_KEY")
         self.openai_client = OpenAI(api_key=api_key) if api_key else None
 
-    # ---------------------------------------------------
     # ELEVENLABS
-    # ---------------------------------------------------
     def generate_audio_elevenlabs(self, text: str, output_path=None):
         if not self.eleven_key:
             raise Exception("Missing ELEVENLABS_API_KEY")
@@ -58,9 +56,7 @@ class TTSService:
 
         return output_path
 
-    # ---------------------------------------------------
     # OPENAI TTS
-    # ---------------------------------------------------
     def generate_audio_openai(self, text: str, output_path=None):
         if not self.openai_client:
             raise Exception("OpenAI TTS not configured (OPENAI_API_KEY missing)")
@@ -77,9 +73,7 @@ class TTSService:
         response.stream_to_file(output_path)
         return output_path
 
-    # ---------------------------------------------------
     # PUBLIC METHOD
-    # ---------------------------------------------------
     def generate_audio(self, text: str, output_path=None, provider="openai"):
         text = text.strip()
         if not text:
@@ -89,3 +83,15 @@ class TTSService:
             return self.generate_audio_elevenlabs(text, output_path)
 
         return self.generate_audio_openai(text, output_path)
+    
+    # AUDIO RESIZING
+    def resize_audio(self, input_path, output_path, target_bitrate="64k"):
+        from pydub import AudioSegment
+
+        audio = AudioSegment.from_file(input_path)
+        audio.export(output_path, format="mp3", bitrate=target_bitrate)
+        return output_path
+
+        if not output_path:
+            output_path = tempfile.mktemp(suffix=".mp3")
+        return output_path

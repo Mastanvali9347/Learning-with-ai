@@ -9,9 +9,6 @@ class DiagramService:
     def __init__(self):
         self.llm = LLMService()
 
-    # ============================================================
-    # 1. FLOWCHART
-    # ============================================================
     def create_flowchart(self, nodes, edges, output_path=None):
         if not output_path:
             output_path = tempfile.mktemp()
@@ -88,7 +85,7 @@ Return ONLY JSON like:
 
         dot.node("center", central_topic, shape="ellipse", fillcolor="gold", style="filled")
 
-        colors = ["lightblue", "lightgreen", "lightyellow", "lightpink"]
+        colors = ["lightblue", "lightgreen", "lightyellow", "lightpink", "lightgrey", "orange", "violet", "cyan", "salmon", "lime"]
 
         for i, b in enumerate(branches):
             node = f"b{i}"
@@ -170,7 +167,9 @@ Return ONLY JSON:
 {{
   "members": [
     {{"id": "1", "name": "Alice", "reports_to": null}},
-    {{"id": "2", "name": "Bob", "reports_to": "1"}}
+    {{"id": "2", "name": "Bob", "reports_to": "1"}},
+    {{"id": "3", "name": "Charlie", "reports_to": "1"}},
+    {{"id": "4", "name": "David", "reports_to": "2"}}
   ]
 }}
 """
@@ -188,6 +187,7 @@ Return ONLY JSON:
 
             data = json.loads(content)
 
+
             return self.create_organization_chart(
                 data.get("members", []),
                 output_path
@@ -197,3 +197,4 @@ Return ONLY JSON:
                 [{"id": "1", "name": description, "reports_to": None}],
                 output_path
             )
+
