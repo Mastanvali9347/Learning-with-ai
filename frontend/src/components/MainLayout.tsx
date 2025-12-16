@@ -1,18 +1,20 @@
 import { ReactNode, useState } from 'react';
-import { 
-  Menu, 
-  X, 
-  Plus, 
-  MessageSquare, 
-  Video, 
-  Settings, 
-  Moon, 
+import {
+  Menu,
+  X,
+  Plus,
+  MessageSquare,
+  Video,
+  Settings,
+  Moon,
   Sun,
   ChevronDown,
-  User
+  User,
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import logoImage from 'figma:asset/3f62c88190c02194ba8fdaf809d683e6c3cb335b.png';
+import logoImage from '../assets/images/learning-ai.png';
+
+
 
 interface MainLayoutProps {
   children: ReactNode;

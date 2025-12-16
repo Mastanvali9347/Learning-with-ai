@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { LogIn, UserPlus, Moon, Sun } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
-import logoImage from 'figma:asset/3f62c88190c02194ba8fdaf809d683e6c3cb335b.png';
+import logoImage from '../assets/images/learning-ai.png';
 
 interface AuthPageProps {
   onLogin: (user: { name: string; email: string }) => void;
