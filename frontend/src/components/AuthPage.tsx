@@ -67,6 +67,8 @@ export function AuthPage({ onLogin }: AuthPageProps) {
         )}
       </button>
 
+      
+
       <div className="w-full max-w-md">
         {/* Logo and Title */}
         <div className="text-center mb-8">

@@ -6,7 +6,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-socketio = SocketIO()
+# Socket.IO instance
+socketio = SocketIO(
+    cors_allowed_origins="*",
+    async_mode="eventlet"
+)
 
 def create_app():
     app = Flask(
@@ -17,16 +21,30 @@ def create_app():
 
     app.config.from_object("app.config.Config")
 
-    # Enable CORS only for API
-    CORS(app, resources={
-        r"/api/*": {
-            "origins": os.getenv("FRONTEND_URL", "*"),
-            "methods": ["GET", "POST", "PUT", "DELETE"],
-            "allow_headers": ["Content-Type", "Authorization"]
+    # REST API CORS only
+    CORS(
+        app,
+        resources={
+            r"/api/*": {
+                "origins": os.getenv("FRONTEND_URL", "*"),
+                "methods": ["GET", "POST", "PUT", "DELETE"],
+                "allow_headers": ["Content-Type", "Authorization"]
+            }
         }
-    })
+    )
 
-    socketio.init_app(app, cors_allowed_origins="*")
+    # Initialize Socket.IO
+    socketio.init_app(app)
+
+    @socketio.on("connect")
+    def on_connect():
+        print("✅ React connected via Socket.IO")
+
+    @socketio.on("message")
+    def on_message(data):
+        print("📩 Message from React:", data)
+        socketio.emit("response", {"reply": "Hello from Flask Socket.IO"})
+
 
     from app.routes.api import api_bp
     from app.routes.video import video_bp
@@ -34,15 +52,15 @@ def create_app():
     app.register_blueprint(api_bp, url_prefix="/api")
     app.register_blueprint(video_bp, url_prefix="/api/video")
 
-    # Serve React frontend
-    @app.route("/")
-    def serve_frontend():
+    @app.route("/", defaults={"path": ""})
+    @app.route("/<path:path>")
+    def serve_react(path):
+        full_path = os.path.join(app.template_folder, path)
+        if path and os.path.exists(full_path):
+            return send_from_directory(app.template_folder, path)
         return send_from_directory(app.template_folder, "index.html")
 
-    @app.route("/<path:path>")
-    def serve_static_files(path):
-        return send_from_directory(app.template_folder, path)
-
+    # Create output directory
     os.makedirs(app.config["OUTPUT_DIR"], exist_ok=True)
 
     return app
